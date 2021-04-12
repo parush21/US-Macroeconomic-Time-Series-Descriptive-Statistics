@@ -2,20 +2,23 @@
 title: "Macro Economic Time Series Analysis"
 author: "Parush Arora"
 date: "4/12/2021"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r cars}
+```{r echo = T, results = 'hide}
 library("mFilter")
 library("ggplot2")
 library("ggfortify")
 library("zoo")
+```
+Ques 1: Business Cycle Facts
 
-
+Transforming the data
+```{r echo = T, results = 'hide}
 ## Uploading and Transforming Data
 data = read.csv("C:/Users/arora/Desktop/Second Year/Quarter 3/Macroeconomics 3/HW1/Final Data.csv")
 
@@ -55,29 +58,76 @@ ttech = ts(tech, start = c(1960,1),frequency = 4) ## transforming into a time se
 hptech = hpfilter(ttech) ## applying hp filter
 Ac = hptech$cycle*100 ## cyclical part obtain from HP filter
 
+## converting back time series into dataframe for the plots
 Y = data.frame(Y=as.matrix(Yc), date=time(Yc))
 C = data.frame(C=as.matrix(Cc), date=time(Cc))
 I = data.frame(I=as.matrix(Ic), date=time(Ic))
 H = data.frame(H=as.matrix(Hc), date=time(Hc))
 W = data.frame(W=as.matrix(Wc), date=time(Wc))
 A = data.frame(A=as.matrix(Ac), date=time(Ac))
+```
 
+The plot for part a)
+
+```{r echo = F}
 ### Plot 
 autoplot(ts( cbind(Y=Y[,1],C= C[,1],I=I[,1],H=H[,1],W=W[,1],A=A[,1])  , start = c(1960,1), frequency = 4 ),
           xlab ="Time", ylab = "Macroeconomic Tiem Series", facets = FALSE,size = 1)
- 
-### Table
+```
 
+Calculating the statistics for all the variables
+
+```{r echo = T, results = 'hide}
 ## Autocorrelations
 autoY = cor(Y[1:nrow(Y)-1,1],Y[2:nrow(Y),1])
-autoC = cor(Y[1:nrow(C)-1,1],Y[2:nrow(C),1])
-autoI = cor(Y[1:nrow(I)-1,1],Y[2:nrow(I),1])
-autoH = cor(Y[1:nrow(H)-1,1],Y[2:nrow(H),1])
-autoW = cor(Y[1:nrow(W)-1,1],Y[2:nrow(W),1])
-autoA = cor(Y[1:nrow(A)-1,1],Y[2:nrow(A),1])
+autoC = cor(C[1:nrow(C)-1,1],Y[2:nrow(C),1])
+autoI = cor(I[1:nrow(I)-1,1],Y[2:nrow(I),1])
+autoH = cor(H[1:nrow(H)-1,1],Y[2:nrow(H),1])
+autoW = cor(W[1:nrow(W)-1,1],Y[2:nrow(W),1])
+autoA = cor(A[1:nrow(A)-1,1],Y[2:nrow(A),1])
 
-## Correlations
+## Correlations with Y 
+CY = cor(Y[,1],C[,1])
+IY = cor(Y[,1],I[,1])
+HY = cor(Y[,1],H[,1])
+WY = cor(Y[,1],W[,1])
+AY = cor(Y[,1],A[,1])
 
+## Standard deviations
+sdY = sd(Y[,1])
+sdC = sd(C[,1])
+sdI = sd(I[,1])
+sdH = sd(H[,1])
+sdW = sd(W[,1])
+sdA = sd(A[,1])
+
+## Relative standard deviation with respect to Output
+sdCY = sdC/sdY
+sdIY = sdI/sdY
+sdHY = sdH/sdY
+sdWY = sdW/sdY
+sdAY = sdA/sdY
 ```
+
+Table for part b) of question 1
+
+```{r echo = F}
+## Table
+Table = cbind(Variables = as.data.frame(c("Y","C","I","H","W","A")),Autocorrelations = round(c(autoY,autoC,autoI,autoH, autoW, autoA),2),
+              Standard_Deviation = round(c(sdY,sdC,sdI,sdH, sdW, sdA),2), Correlation_with_Y = round(c(1,CY,IY,HY,WY,AY),2),
+              Relative_Standard_Deviation = round(c(1,sdCY,sdIY,sdHY,sdWY,sdAY),2))
+colnames(Table)[1] = "variable"
+Table
+```
+
+Part c) 
+The main stylized facts that RBC model should aim to explain are
+
+1) output and consumption have the same volatility.
+2) Investment is at least 4 times as volatile as the output
+3) consumption does not show one to one correlation with output signaling that agents do consumption smoothing
+4) Wages are not at all correlated with output may be because of contracts as they are predetermined 
+5) working hours and investments are significantly correlated with output.
+
 
 
